@@ -40,7 +40,6 @@ export const login = async (req: Request, res: Response) => {
       process.env.JWT_SECRET!,
       { expiresIn: "24h" }
     );
-
     return res.json({ token });
   } catch (err) {
     return res.status(400).json({ message: "Invalid request" });
