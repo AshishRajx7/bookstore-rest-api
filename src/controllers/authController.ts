@@ -46,5 +46,11 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
+export const getMe = async (req: Request, res: Response) => {
+  const user = await User.findById((req as any).user.id).select("-password");
+  res.json(user);
+};
+
+
 
 
