@@ -46,5 +46,16 @@ export const updateBook = async (req: Request, res: Response) => {
     return res.status(400).json({ message: "Invalid id or data" });
   }
 };
-
+//delete a book by id
+export const deleteBook = async(req:Request, res:Response) => {
+    try{
+        const book= await Book.findByIdAndDelete(req.params.id);
+        if(!book){
+            return res.status(404).json({message:"Book not found"});
+        }
+        return res.json({message:"Book deleted"});
+    } catch(err){
+        return res.status(400).json({message:"Invalid id"});        
+    }
+};
 
