@@ -9,15 +9,29 @@ export const createBook = async (req: Request, res: Response) => {
     return res.status(400).json({ message: "Invalid data" });
   }
 };
-//Read all books
+
+//Read all books used Pagination
 export const getBooks = async (req: Request, res: Response) => {
   try {
-    const books = await Book.find();
-    return res.json(books);
+    const page = Math.max(parseInt(req.query.page as string) || 1, 1);
+    const limit = 10; 
+    const skip = (page - 1) * limit;
+
+    const books = await Book.find()
+      .skip(skip)
+      .limit(limit);
+
+    const total = await Book.countDocuments();
+    res.json({
+      books,
+      page,
+      total
+    });
   } catch (err) {
-    return res.status(500).json({ message: "Error finding books" });
+    res.status(500).json({ message: "Error finding books" });
   }
 };
+
 // Read one book by id
 export const getBookById = async (req: Request, res: Response) => {
   try {
