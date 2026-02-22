@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import Book from "../models/Book";
+
 // Create a new book
 export const createBook = async (req: Request, res: Response) => {
   try {
@@ -50,7 +51,6 @@ export const getBooks = async (req: Request, res: Response) => {
       const order = req.query.order === "asc" ? 1 : -1;
       sort[field] = order;
     }
-
     const books = await Book.find(query)
       .sort(sort)
       .skip(skip)
@@ -70,7 +70,6 @@ export const getBooks = async (req: Request, res: Response) => {
 };
 
 
-
 // Read one book by id
 export const getBookById = async (req: Request, res: Response) => {
   try {
@@ -83,6 +82,8 @@ export const getBookById = async (req: Request, res: Response) => {
     return res.status(400).json({ message: "Invalid id" });
   }
 };
+
+
 //update a book by id
 export const updateBook = async (req: Request, res: Response) => {
   try {
@@ -99,6 +100,8 @@ export const updateBook = async (req: Request, res: Response) => {
     return res.status(400).json({ message: "Invalid id or data" });
   }
 };
+
+
 //delete a book by id
 export const deleteBook = async(req:Request, res:Response) => {
     try{
@@ -111,4 +114,3 @@ export const deleteBook = async(req:Request, res:Response) => {
         return res.status(400).json({message:"Invalid id"});        
     }
 };
-
