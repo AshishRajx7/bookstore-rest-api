@@ -13,24 +13,63 @@ export const createBook = async (req: Request, res: Response) => {
 //Read all books used Pagination
 export const getBooks = async (req: Request, res: Response) => {
   try {
-    const page = Math.max(parseInt(req.query.page as string) || 1, 1);
-    const limit = 10; 
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = 10;
     const skip = (page - 1) * limit;
 
-    const books = await Book.find()
+    const query: any = {};
+
+    // Filtering
+    if (req.query.author) {
+      query.author = req.query.author;
+    }
+    if (req.query.genre) {
+      query.genre = req.query.genre;
+    }
+    if (req.query.minPrice || req.query.maxPrice) {
+      query.price = {};
+      if (req.query.minPrice) {
+        query.price.$gte = parseInt(req.query.minPrice as string);
+      }
+      if (req.query.maxPrice) {
+        query.price.$lte = parseInt(req.query.maxPrice as string);
+      }
+    }
+    if (req.query.search) {
+      query.title = {
+        $regex: req.query.search,
+        $options: "i"
+      };
+    }
+
+    // Sorting
+    let sort: any = {};
+
+    if (req.query.sortBy) {
+      const field = req.query.sortBy as string;
+      const order = req.query.order === "asc" ? 1 : -1;
+      sort[field] = order;
+    }
+
+    const books = await Book.find(query)
+      .sort(sort)
       .skip(skip)
       .limit(limit);
 
-    const total = await Book.countDocuments();
+    const total = await Book.countDocuments(query);
+
     res.json({
       books,
       page,
       total
     });
+
   } catch (err) {
-    res.status(500).json({ message: "Error finding books" });
+    res.status(500).json({ message: "Error fetching books" });
   }
 };
+
+
 
 // Read one book by id
 export const getBookById = async (req: Request, res: Response) => {
