@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import Book from "../models/Book";
+import Review from "../models/Review";
 
 // Create a new book
 export const createBook = async (req: Request, res: Response) => {
@@ -70,16 +71,34 @@ export const getBooks = async (req: Request, res: Response) => {
 };
 
 
-// Read one book by id
+// Read one book by id with reviews and average rating
 export const getBookById = async (req: Request, res: Response) => {
   try {
     const book = await Book.findById(req.params.id);
+
     if (!book) {
       return res.status(404).json({ message: "Book not found" });
     }
-    return res.json(book);
+
+    const reviews = await Review.find({ book: book._id });
+
+    const reviewCount = reviews.length;
+
+    let averageRating = 0;
+
+    if (reviewCount > 0) {
+      const totalRating = reviews.reduce((sum, r) => sum + r.rating, 0);
+      averageRating = totalRating / reviewCount;
+    }
+
+    res.json({
+      book,
+      reviewCount,
+      averageRating
+    });
+
   } catch (err) {
-    return res.status(400).json({ message: "Invalid id" });
+    res.status(400).json({ message: "Invalid id" });
   }
 };
 

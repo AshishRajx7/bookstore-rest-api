@@ -36,3 +36,29 @@ export const addReview = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Error adding review" });
   }
 };
+
+
+export const deleteReview = async (req: Request, res: Response) => {
+  try {
+    const reviewId = req.params.reviewId;
+    const userId = (req as any).user.id;
+    const userRole = (req as any).user.role;
+
+    const review = await Review.findById(reviewId);
+
+    if (!review) {
+      return res.status(404).json({ message: "Review not found" });
+    }
+
+    if (userRole !== "admin" && review.user.toString() !== userId) {
+      return res.status(403).json({ message: "Not allowed" });
+    }
+
+    await Review.findByIdAndDelete(reviewId);
+
+    res.json({ message: "Review deleted" });
+
+  } catch (err) {
+    res.status(400).json({ message: "Invalid review id" });
+  }
+};
